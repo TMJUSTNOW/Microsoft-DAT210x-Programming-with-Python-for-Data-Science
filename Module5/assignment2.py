@@ -45,8 +45,8 @@ def locatephonenum(phone_num, df, nb_clusers):
   #
   # Add more filters to the user1 slice you created. Add bitwise logic so that you're
   # only examining records that came in on weekends (sat/sun).
-  #
-  user1 = user1[(user1['DOW'] == 'Sat') | (user1['DOW'] == 'Sun')]
+  week_end_days = ['Sat', 'Sun']
+  user1 = user1[(user1['DOW'].isin(week_end_days ))]
 
   #
   # Further filter it down for calls that are came in either before 6AM OR after 10pm (22:00:00).
@@ -57,7 +57,7 @@ def locatephonenum(phone_num, df, nb_clusers):
   # slice, print out its length:
   #
 
-  user1 = user1[((user1['CallTime'] > '22:00:00') | (user1['CallTime'] < '06:00:00'))]
+  user1 = user1[((user1['CallTime'] > '22:00:00'))] # | (user1['CallTime'] < '06:00:00'))]
   print(len(user1))
   #
   # INFO: Visualize the dataframe with a scatter plot as a sanity check. Since you're familiar
@@ -69,10 +69,11 @@ def locatephonenum(phone_num, df, nb_clusers):
   # phone tower position data; but considering the below are for Calls that arrived in the twilight
   # hours of weekends, it's likely that wherever they are bunched up is probably near where the
   # caller's residence:
-  fig = plt.figure()
-  ax = fig.add_subplot(111)
-  ax.scatter(user1.TowerLon, user1.TowerLat, c='g', marker='o', alpha=0.2)
-  ax.set_title('Weekend Calls (<6am or >10p)')
+  #fig = plt.figure()
+  #ax = fig.add_subplot(111)
+  #ax.scatter(x=user1.TowerLon, y=user1.TowerLat, c='g', marker='o', alpha=0.2)
+  #ax.set_title('Weekend Calls (<6am or >10p)')
+  user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Week end Calls')
   showandtell()  # Comment this line out when you're ready to proceed
 
   #
@@ -89,7 +90,7 @@ def locatephonenum(phone_num, df, nb_clusers):
   #
   # Hint: Make sure you graph the CORRECT coordinates. This is part of your domain expertise.
   #
-  df_user1_coordinates = user1[['TowerLon', 'TowerLat']]
+  df_user1_coordinates = user1[['TowerLat','TowerLon']]
   kmeans_model = KMeans(n_clusters=nb_clusers)
   kmeans_model.fit(df_user1_coordinates)
   labels = kmeans_model.predict(df_user1_coordinates)
@@ -130,6 +131,6 @@ print(phone_numbers)
 # locations. You might want to use a for-loop, unless you enjoy typing.
 #
 nb_clusers= 1
-for phone_num in phone_numbers:
+for phone_num in phone_numbers[:2]:
   locatephonenum(phone_num, df, nb_clusers)
 
