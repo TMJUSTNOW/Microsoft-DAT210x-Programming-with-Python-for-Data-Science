@@ -209,7 +209,7 @@ y_test_prediction = y_test_prediction.astype(dtype=np.int16)
 # by passing in your test data and test label (y_test).
 #
 # .. your code here ..
-print "Extrapolation R^2 Score: ", score
+print("Extrapolation R^2 Score: ", score)
 
 
 #

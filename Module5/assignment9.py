@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from sklearn import linear_model
+from sklearn.cross_validation  import train_test_split
 
 matplotlib.style.use('ggplot') # Look Pretty
 
@@ -19,8 +21,8 @@ def drawLine(model, X_test, y_test, title, R2):
 
   title += " R2: " + str(R2)
   ax.set_title(title)
-  print title
-  print "Intercept(s): ", model.intercept_
+  print(title)
+  print("Intercept(s): ", model.intercept_)
 
   plt.show()
 
@@ -58,8 +60,8 @@ def drawPlane(model, X_test, y_test, title, R2):
   
   title += " R2: " + str(R2)
   ax.set_title(title)
-  print title
-  print "Intercept(s): ", model.intercept_
+  print(title)
+  print("Intercept(s): ", model.intercept_)
   
   plt.show()
   
@@ -83,7 +85,9 @@ def drawPlane(model, X_test, y_test, title, R2):
 # as an index. Then, load up the College dataset into a variable
 # called X:
 #
-# .. your code here ..
+#names = ['College','Private','Apps','Accept','Enroll','Top10perc','Top25perc','F.Undergrad','P.Undergrad','Outstate','Room.Board','Books','Personal','PhD','Terminal','S.F.Ratio','perc.alumni','Expend','Grad.Rate']
+X = pd.read_csv('./Datasets/College.csv')
+print(X.head())
 
 
 #
@@ -98,11 +102,11 @@ X.Private = X.Private.map({'Yes':1, 'No':0})
 
 
 #
-# TODO: Create your linear regression model here and store it in a
+# Create your linear regression model here and store it in a
 # variable called 'model'. Don't actually train or do anything else
 # with it yet:
 #
-# .. your code here ..
+model = linear_model.LinearRegression()
 
 
 
@@ -113,19 +117,23 @@ X.Private = X.Private.map({'Yes':1, 'No':0})
 # charged for room and board.
 
 #
-# TODO: Using indexing, create two slices (series). One will just
+#  Using indexing, create two slices (series). One will just
 # store the room and board column, the other will store the accepted
 # students column. Then use train_test_split to cut your data up
 # into X_train, X_test, y_train, y_test, with a test_size of 30% and
 # a random_state of 7.
 #
-# .. your code here ..
+roomAndBoard = X[['Room.Board']]
+acceptedStudents = X[['Accept']]
+X_train, X_test, y_train, y_test = train_test_split(roomAndBoard, acceptedStudents, test_size=0.3, random_state=7)
 
 #
-# TODO: Fit and score your model appropriately. Store the score in the
+#  Fit and score your model appropriately. Store the score in the
 # score variable.
 #
-# .. your code here ..
+model.fit(X_train, y_train)
+# R2 Score
+score = model.score(X_test, y_test)
 
 # INFO: We'll take it from here, buddy:
 drawLine(model, X_test, y_test, "Accept(Room&Board)", score)
@@ -134,26 +142,32 @@ drawLine(model, X_test, y_test, "Accept(Room&Board)", score)
 
 
 # 
-# TODO: Duplicate the process above; this time, model the number of
+# Duplicate the process above; this time, model the number of
 # accepted students, as a function of the number of enrolled students
 # per college.
 #
-# .. your code here ..
+enrolledStudents = X[['Enroll']]
+X_train, X_test, y_train, y_test = train_test_split(enrolledStudents, acceptedStudents, test_size=0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawLine(model, X_test, y_test, "Accept(Enroll)", score)
 
 
 
 # 
-# TODO: Duplicate the process above; this time, model the number of
+# Duplicate the process above; this time, model the number of
 # accepted students, as as function of the numbr of failed undergraduate
 # students per college.
 #
-# .. your code here ..
+undergraduate = X[['F.Undergrad']]
+X_train, X_test, y_train, y_test = train_test_split(undergraduate , acceptedStudents, test_size=0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawLine(model, X_test, y_test, "Accept(F.Undergrad)", score)
 
 
 #
-# TODO: Duplicate the process above (almost). This time is going to be
+# Duplicate the process above (almost). This time is going to be
 # a bit more complicated. Instead of modeling one feature as a function
 # of another, you will attempt to do multivariate linear regression to
 # model one feature as a function of TWO other features.
@@ -164,10 +178,17 @@ drawLine(model, X_test, y_test, "Accept(F.Undergrad)", score)
 # simply create a slice that contains both columns you wish to use as
 # inputs. Your training labels will remain a single slice.
 #
-# .. your code here ..
+chargedForRoomAndEnrolled = X[['Room.Board', 'Enroll']]
+X_train, X_test, y_train, y_test = train_test_split(chargedForRoomAndEnrolled , acceptedStudents, test_size=0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawPlane(model, X_test, y_test, "Accept(Room&Board,Enroll)", score)
 
 
+chargedForRoomAndEnrolled = X[['Room.Board', 'Enroll']]
+X_train, X_test, y_train, y_test = train_test_split(chargedForRoomAndEnrolled , acceptedStudents, test_size=0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 #
 # INFO: That concludes this assignment
 #
