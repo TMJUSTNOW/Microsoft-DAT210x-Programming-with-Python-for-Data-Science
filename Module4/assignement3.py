@@ -18,19 +18,19 @@ df = pd.read_csv('Datasets/kidney_disease.csv')
 df = df.dropna(axis=0)
 print(df.head())
 print(df.dtypes)
-print(df.describe())
+
 
 # Create some color coded labels; the actual label feature
 # will be removed prior to executing PCA, since it's unsupervised.
 # You're only labeling by color so you can see the effects of PCA
 labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 
-# Use an indexer to select only the following columns:
-#       ['bgr','wc','rc']
-#
-df = df[['bgr','wc','rc']]
-print(df.head())
 
+# drop all categorical columns or keep it and make it boolean
+#df = df.drop(labels=['id', 'classification', 'rbc', 'pc', 'pcc', 'ba', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'], axis=1)
+df = df.drop(labels=['id', 'classification'], axis=1)
+df = pd.get_dummies(df,columns=['rbc', 'pc', 'pcc', 'ba', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'])
+print(df.head())
 
 # Print out and check your dataframe's dtypes. You'll probably
 # want to call 'exit()' after you print it out so you can stop the
@@ -43,8 +43,9 @@ print(df.head())
 # properly detect and convert them to that data type for you, then use
 # an appropriate command to coerce these features into the right type.
 #
-print(df.tail(5))
 
+print(df.dtypes)
+df.pcv = pd.to_numeric(df.pcv, errors='coerce')
 df.wc = pd.to_numeric(df.wc, errors='coerce')
 df.rc = pd.to_numeric(df.rc, errors='coerce')
 print(df.dtypes)
@@ -95,5 +96,4 @@ T = pd.DataFrame(T)
 T.columns = ['component1', 'component2']
 T.plot.scatter(x='component1', y='component2', marker='o', c=labels, alpha=0.75, ax=ax)
 plt.show()
-
 

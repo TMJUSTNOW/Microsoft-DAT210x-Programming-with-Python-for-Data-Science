@@ -9,15 +9,19 @@ matplotlib.style.use('ggplot')
 
 
 #
-# TODO: Load up the Seeds Dataset into a Dataframe
+# Load up the Seeds Dataset into a Dataframe
 # It's located at 'Datasets/wheat.data'
 # 
 data_set = pd.read_csv('Datasets/wheat.data')
+data_set = data_set.dropna()
+print(data_set.head())
+print(data_set.dtypes)
+
 
 
 #
 # TODO: Create a 2d scatter plot that graphs the
-# area and perimeter features
+#  area and perimeter features
 # 
 data_set.plot.scatter(x='area', y='perimeter', marker='o')
 
