@@ -87,38 +87,40 @@ def drawPlots(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 
       cnt += 1
 
-  print "Max 2D Score: ", max_2d_score
+  print("Max 2D Score: ", max_2d_score)
   fig.set_tight_layout(True)
 
 
 def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
-  print '\n\n' + wintitle + ' Results'
+  print('\n\n' + wintitle + ' Results')
+  s = time.time()
+
+  for i in range(iterations):
+
+      # TODO: train the classifier on the training data / labels:
+      #
+      # .. your code here ..
+  print("{0} Iterations Training Time: ".format(iterations), time.time() - s)
+
   s = time.time()
   for i in range(iterations):
-    #
-    # TODO: train the classifier on the training data / labels:
-    #
-    # .. your code here ..
-  print "{0} Iterations Training Time: ".format(iterations), time.time() - s
-
-
-  s = time.time()
-  for i in range(iterations):
-    #
-    # TODO: score the classifier on the testing data / labels:
-    #
-    # .. your code here ..
-  print "{0} Iterations Scoring Time: ".format(iterations), time.time() - s
-  print "High-Dimensionality Score: ", round((score*100), 3)
+      #
+      # TODO: score the classifier on the testing data / labels:
+      #
+      # .. your code here ..
+  #print("{0} Iterations Scoring Time: ".format(iterations), time.time() - s)
+  #print("High-Dimensionality Score: ", round((score*100), 3))
 
 
 
-# 
-# TODO: Load up the wheat dataset into dataframe 'X'
+#
+# Load up the wheat dataset into dataframe 'X'
 # Verify you did it properly.
 # Indices shouldn't be doubled, nor weird headers...
 #
-# .. your code here ..
+X = pd.read_csv('./Datasets/wheat.data')
+print(X.head())
+exit()
 
 
 # INFO: An easy way to show which rows have nans in them
@@ -175,11 +177,11 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 
 
 
-benchmark(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
-drawPlots(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
+#benchmark(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
+#drawPlots(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
 
-benchmark(svc, X_train, X_test, y_train, y_test, 'SVC')
-drawPlots(svc, X_train, X_test, y_train, y_test, 'SVC')
+#benchmark(svc, X_train, X_test, y_train, y_test, 'SVC')
+#drawPlots(svc, X_train, X_test, y_train, y_test, 'SVC')
 
 plt.show()
 

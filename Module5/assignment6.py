@@ -12,7 +12,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 # If you'd like to try this lab with PCA instead of Isomap,
 # as the dimensionality reduction technique:
-Test_PCA = False
+Test_PCA = True
 
 matplotlib.style.use('ggplot') # Look Pretty
 
