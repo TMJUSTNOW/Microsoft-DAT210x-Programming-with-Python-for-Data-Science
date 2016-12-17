@@ -2,6 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
+from sklearn.cross_validation  import train_test_split
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+
 
 matplotlib.style.use('ggplot') # Look Pretty
 
@@ -47,48 +54,57 @@ def plotDecisionBoundary(model, X, y):
 
 
 # 
-# TODO: Load up the dataset into a variable called X. Check the .head and
+# Load up the dataset into a variable called X. Check the .head and
 # compare it to the file you loaded in a text editor. Make sure you're
 # loading your data properly--don't fail on the 1st step!
 #
-# .. your code here ..
+X = pd.read_csv('./Datasets/wheat.data')
+print(X.describe())
+print(X.dtypes)
 
 
 
 #
-# TODO: Copy the 'wheat_type' series slice out of X, and into a series
+# Copy the 'wheat_type' series slice out of X, and into a series
 # called 'y'. Then drop the original 'wheat_type' column from the X
 #
-# .. your code here ..
+#y = X['wheat_type'].copy()
+y = X[['wheat_type']].copy()
+X.drop(labels=['wheat_type', 'id'], inplace=True, axis=1)
+print(X.head())
 
 
 
-# TODO: Do a quick, "ordinal" conversion of 'y'. In actuality our
+# Do a quick, "ordinal" conversion of 'y'. In actuality our
 # classification isn't ordinal, but just as an experiment...
 #
-# .. your code here ..
+print(y['wheat_type'].unique())
 
+y['wheat_type'] = y.wheat_type.astype("category").cat.codes
 
+print(y['wheat_type'].unique())
 
-#
-# TODO: Basic nan munging. Fill each row's nans with the mean of the feature
-#
-# .. your code here ..
 
 
 
 #
-# TODO: Split X into training and testing data sets using train_test_split().
+# Basic nan munging. Fill each row's nans with the mean of the feature
+#
+X = X.fillna(X.mean())
+
+#
+# Split X into training and testing data sets using train_test_split().
 # INFO: Use 0.33 test size, and use random_state=1. This is important
 # so that your answers are verifiable. In the real world, you wouldn't
 # specify a random_state.
 #
-# .. your code here ..
 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=1)
 
+print(type(y_test))
 
 # 
-# TODO: Create an instance of SKLearn's Normalizer class and then train it
+# Create an instance of SKLearn's Normalizer class and then train it
 # using its .fit() method against your *training* data.
 #
 # NOTE: The reason you only fit against your training data is because in a
@@ -97,25 +113,26 @@ def plotDecisionBoundary(model, X, y):
 # you'll only have your training data, and then unlabeled data you want to
 # apply your models to.
 #
-# .. your code here ..
+T = preprocessing.Normalizer().fit(X_train)
 
 
 
 #
-# TODO: With your trained pre-processor, transform both your training AND
+# With your trained pre-processor, transform both your training AND
 # testing data.
 #
 # NOTE: Any testing data has to be transformed with your preprocessor
 # that has ben fit against your training data, so that it exist in the same
 # feature-space as the original data used to train your models.
 #
-# .. your code here ..
+X_train = T.transform(X_train)
+X_test =T.transform(X_test)
 
 
 
 
 #
-# TODO: Just like your preprocessing transformation, create a PCA
+#  Just like your preprocessing transformation, create a PCA
 # transformation as well. Fit it against your training data, and then
 # project your training and testing features into PCA space using the
 # PCA model's .transform() method.
@@ -123,24 +140,37 @@ def plotDecisionBoundary(model, X, y):
 # NOTE: This has to be done because the only way to visualize the decision
 # boundary in 2D would be if your KNN algo ran in 2D as well:
 #
-# .. your code here ..
+pca = PCA(n_components=2)
+pca.fit(X_train)
+X_train = pca.transform(X_train)
+X_test = pca.transform(X_test)
+print(X_train)
 
-
+# plot PCA result 2D
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_title('PCA')
+ax.scatter(X_test[:,0], X_test[:,1], c='g', marker='.', alpha=1)
+plt.show()
 
 
 #
-# TODO: Create and train a KNeighborsClassifier. Start with K=9 neighbors.
+# Create and train a KNeighborsClassifier. Start with K=9 neighbors.
 # NOTE: Be sure train your classifier against the pre-processed, PCA-
 # transformed training data above! You do not, of course, need to transform
 # your labels.
-#
-# .. your code here ..
+#s
+y_train = y_train.values.ravel()
+for i in range(1,10):
+  knn = KNeighborsClassifier(n_neighbors=i)
 
-
+  knn.fit(X_train, y_train)
 
 
 # HINT: Ensure your KNeighbors classifier object from earlier is called 'knn'
-plotDecisionBoundary(knn, X_train, y_train)
+#plotDecisionBoundary(knn, X_train, y_train)
 
 
 #------------------------------------
@@ -150,8 +180,12 @@ plotDecisionBoundary(knn, X_train, y_train)
 #
 # NOTE: You do NOT have to run .predict before calling .score, since
 # .score will take care of running your predictions for you automatically.
-#
-# .. your code here ..
+
+  predictions = knn.predict(X_test)
+  print(knn.score(X_test, y_test))
+  print("for neighbors nb: "+str(i) + " score: ",accuracy_score(y_test, predictions))
+
+exit()
 
 
 
