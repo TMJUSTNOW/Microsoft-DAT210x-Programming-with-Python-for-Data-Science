@@ -1,6 +1,8 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-
+from sklearn.cross_validation import train_test_split
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import numpy as np 
 import time
@@ -11,7 +13,7 @@ import time
 # You can adjust them after completing the lab
 C = 1
 kernel = 'linear'
-iterations = 5000   # TODO: Change to 200000 once you get to Question#2
+iterations = 200000   # Change from 5000 to 200000 once you get to Question#2
 
 #
 # INFO: You can set this to false if you want to
@@ -34,6 +36,7 @@ def drawPlots(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 
   y_colors = ['#ff0000', '#00ff00', '#0000ff']
   my_cmap = mpl.colors.ListedColormap(['#ffaaaa', '#aaffaa', '#aaaaff'])
+
   colors = [y_colors[i] for i in y_train]
   num_columns = len(X_train.columns)
 
@@ -90,26 +93,23 @@ def drawPlots(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
   print("Max 2D Score: ", max_2d_score)
   fig.set_tight_layout(True)
 
-
 def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
-  print('\n\n' + wintitle + ' Results')
-  s = time.time()
+    print('\n\n' + wintitle + ' Results')
+    s = time.time()
 
-  for i in range(iterations):
+    for i in range(iterations):
+      # train the classifier on the training data / labels:
+      model.fit(X_train, y_train)
 
-      # TODO: train the classifier on the training data / labels:
-      #
-      # .. your code here ..
-  print("{0} Iterations Training Time: ".format(iterations), time.time() - s)
+    print("{0} Iterations Training Time: ".format(iterations), time.time() - s)
 
-  s = time.time()
-  for i in range(iterations):
-      #
-      # TODO: score the classifier on the testing data / labels:
-      #
-      # .. your code here ..
-  #print("{0} Iterations Scoring Time: ".format(iterations), time.time() - s)
-  #print("High-Dimensionality Score: ", round((score*100), 3))
+    s = time.time()
+    for i in range(iterations):
+      # score the classifier on the testing data / labels:
+      score = model.score(X_test, y_test)
+    print("{0} Iterations Scoring Time: ".format(iterations), time.time() - s)
+    print("High-Dimensionality Score: ", round((score*100), 3))
+
 
 
 
@@ -120,18 +120,17 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 #
 X = pd.read_csv('./Datasets/wheat.data')
 print(X.head())
-exit()
 
 
 # INFO: An easy way to show which rows have nans in them
-#print X[pd.isnull(X).any(axis=1)]
+print(X[pd.isnull(X).any(axis=1)])
 
 
 # 
-# TODO: Go ahead and drop any row with a nan
+# Go ahead and drop any row with a nan
 #
-# .. your code here ..
-
+X = X.dropna(axis=0)
+print(X[pd.isnull(X).any(axis=1)])
 
 
 # 
@@ -143,45 +142,42 @@ exit()
 
 
 #
-# TODO: Copy the labels out of the dset into variable 'y' then Remove
+# Copy the labels out of the dset into variable 'y' then Remove
 # them from X. Encode the labels, using the .map() trick we showed
 # you in Module 5 -- canadian:0, kama:1, and rosa:2
 #
-# .. your code here ..
-
+y = X['wheat_type'].copy()
+y = y.astype("category").cat.codes
+X = X.drop(['id', 'wheat_type'], axis=1)
+print(X.head())
 
 
 # 
-# TODO: Split your data into test / train sets
+# Split your data into test / train sets
 # Your test size can be 30% with random_state 7.
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
-
-
+X_train, X_test, y_train, y_test, = train_test_split(X, y, test_size=0.3, random_state=7)
 
 #
-# TODO: Create an SVC classifier named svc
+# Create an SVC classifier named svc
 # Use a linear kernel, and set the C value to C
 #
-# .. your code here ..
+svc = SVC(kernel=kernel, C=C)
 
 
 #
-# TODO: Create an KNeighbors classifier named knn
+# Create an KNeighbors classifier named knn
 # Set the neighbor count to 5
 #
-# .. your code here ..
+knn = KNeighborsClassifier(n_neighbors=5)
 
 
+benchmark(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
+drawPlots(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
 
-
-
-#benchmark(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
-#drawPlots(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
-
-#benchmark(svc, X_train, X_test, y_train, y_test, 'SVC')
-#drawPlots(svc, X_train, X_test, y_train, y_test, 'SVC')
+benchmark(svc, X_train, X_test, y_train, y_test, 'SVC')
+drawPlots(svc, X_train, X_test, y_train, y_test, 'SVC')
 
 plt.show()
 
